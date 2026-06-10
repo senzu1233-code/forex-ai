@@ -166,6 +166,9 @@ checkoutForm.addEventListener('submit', (e) => {
     
     // Simulate API delay
     setTimeout(() => {
+        // Redirect to PayPal.me link
+        window.open('https://paypal.me/mario12944/40', '_blank');
+        
         // Success
         localStorage.setItem('forexPremium', 'true');
         updateUsageDisplay();
@@ -177,12 +180,8 @@ checkoutForm.addEventListener('submit', (e) => {
         paySpinner.style.display = 'none';
         btnPay.disabled = false;
         
-        showToast('🎉 Payment successful! Welcome to Premium!');
-        
-        // Show fireworks/celebration
-        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
-        function randomInRange(min, max) { return Math.random() * (max - min) + min; }
-    }, 2000);
+        showToast('🎉 Duke hapur PayPal... Llogaria po bëhet Premium!');
+    }, 1500);
 });
 
 // Check URL for successful payment return (if using real gateway later)
