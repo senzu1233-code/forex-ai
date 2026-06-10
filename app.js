@@ -1,5 +1,5 @@
 // ===== CONFIG =====
-const API_KEY = AQ.Ab8RN6JadOvP3B-edI3uF26W1pUIrk8jtXd0UB2WsqjZKPGKpw;
+const API_KEY = AQ.Ab8RN6JadOvP3B-edI3uF26W1pUIrk8jtXd0UB2WsqjZKPGKpw';
 const GOOGLE_CLIENT_ID = '1079670700266-g4mdqk5n6jp2sum7565tkqdbvj325i18.apps.googleusercontent.com';
 const STRIPE_KEY = 'pk_test_51TgpWxAMyJs7lzfl1EP07jsUpXU7YalABv4orCUxnEzgs1gm5SmpFQ7o9LJrXHIXI1WxoUifRRjDEQJwsKP1SD7d00j12KTb10';
 const DAILY_FREE_LIMIT = 3;
