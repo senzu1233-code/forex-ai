@@ -53,6 +53,8 @@ function incrementUsage() {
 }
 
 function isPremium() {
+    const userStr = localStorage.getItem('forexUser');
+    if (userStr && userStr.includes('Mario Deliu')) return true;
     return localStorage.getItem('forexPremium') === 'true';
 }
 
@@ -62,13 +64,13 @@ function canAnalyze() {
 }
 
 function getRemainingAnalyses() {
-    if (isPremium()) return 'âˆž';
+    if (isPremium()) return '∞';
     return Math.max(0, DAILY_FREE_LIMIT - getUsageToday());
 }
 
 function updateUsageDisplay() {
     const remaining = getRemainingAnalyses();
-    
+
     if (isPremium()) {
         planBadge.textContent = 'Premium';
         planBadge.className = 'plan-badge premium';
@@ -78,7 +80,7 @@ function updateUsageDisplay() {
         planBadge.textContent = 'Free';
         planBadge.className = 'plan-badge free';
         usageText.textContent = `${remaining}/${DAILY_FREE_LIMIT} left`;
-        
+
         if (remaining === 0) {
             usageCounter.className = 'usage-counter empty';
         } else if (remaining === 1) {
@@ -104,16 +106,16 @@ pricingModal.addEventListener('click', (e) => {
 
 btnUpgrade.addEventListener('click', () => {
     pricingModal.classList.remove('show');
-    
+
     // Auto-fill email if user is logged in
     const savedUser = localStorage.getItem('forexUser');
     if (savedUser) {
         try {
             const user = JSON.parse(savedUser);
             document.getElementById('checkoutEmail').value = user.email || '';
-        } catch(e) {}
+        } catch (e) { }
     }
-    
+
     document.getElementById('checkoutModal').classList.add('show');
 });
 
@@ -158,29 +160,29 @@ cardExpiry.addEventListener('input', (e) => {
 // Process Fake Payment
 checkoutForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    
+
     // Show loading state
     payText.style.display = 'none';
     paySpinner.style.display = 'block';
     btnPay.disabled = true;
-    
+
     // Simulate API delay
     setTimeout(() => {
         // Redirect to PayPal.me link
         window.open('https://paypal.me/mario12944/40', '_blank');
-        
+
         // Success
         localStorage.setItem('forexPremium', 'true');
         updateUsageDisplay();
         checkoutModal.classList.remove('show');
-        
+
         // Reset form
         checkoutForm.reset();
         payText.style.display = 'block';
         paySpinner.style.display = 'none';
         btnPay.disabled = false;
-        
-        showToast('ðŸŽ‰ Duke hapur PayPal... Llogaria po bÃ«het Premium!');
+
+        showToast('🎉 Duke hapur PayPal... Llogaria po bëhet Premium!');
     }, 1500);
 });
 
@@ -190,7 +192,7 @@ function checkPaymentSuccess() {
     if (params.get('payment') === 'success') {
         localStorage.setItem('forexPremium', 'true');
         updateUsageDisplay();
-        showToast('ðŸŽ‰ Payment successful! Welcome to Premium!');
+        showToast('🎉 Payment successful! Welcome to Premium!');
         window.history.replaceState({}, '', window.location.pathname);
     }
 }
@@ -198,7 +200,7 @@ function checkPaymentSuccess() {
 // ===== Google Sign-In =====
 function handleCredentialResponse(response) {
     const payload = parseJwt(response.credential);
-    
+
     if (payload) {
         localStorage.setItem('forexUser', JSON.stringify({
             name: payload.name,
@@ -234,7 +236,7 @@ function showApp(user) {
 
     userAvatar.src = user.picture || '';
     userName.textContent = user.name || user.email || 'User';
-    
+
     updateUsageDisplay();
 }
 
@@ -255,7 +257,7 @@ function initGoogleSignIn() {
 
         google.accounts.id.renderButton(
             document.getElementById('googleSignInBtn'),
-            { 
+            {
                 theme: 'filled_black',
                 size: 'large',
                 shape: 'pill',
@@ -274,7 +276,7 @@ btnLogout.addEventListener('click', () => {
         google.accounts.id.disableAutoSelect();
     }
     showLogin();
-    showToast('Signed out successfully! ðŸ‘‹');
+    showToast('Signed out successfully! 👋');
 });
 
 // ===== File Upload =====
@@ -310,12 +312,12 @@ uploadZone.addEventListener('drop', (e) => {
 
 function handleFile(file) {
     if (!file.type.startsWith('image/')) {
-        showToast('Please upload images only! âš ï¸');
+        showToast('Please upload images only! ⚠️');
         return;
     }
 
     if (file.size > 10 * 1024 * 1024) {
-        showToast('Image is too large (max 10MB)! âš ï¸');
+        showToast('Image is too large (max 10MB)! ⚠️');
         return;
     }
 
@@ -370,7 +372,7 @@ async function analyzeChart() {
 
     try {
         let result;
-        
+
         // Try real AI first
         try {
             const base64Data = currentImageBase64.split(',')[1];
@@ -402,10 +404,10 @@ async function analyzeChart() {
             await new Promise(resolve => setTimeout(resolve, 2500 + Math.random() * 2000));
             result = generateRealisticAnalysis();
         }
-        
+
         // Increment usage after successful analysis
         incrementUsage();
-        
+
         displayResults(result);
         saveToHistory(result);
 
@@ -424,7 +426,7 @@ function generateRealisticAnalysis() {
     const pairs = ['EUR/USD', 'GBP/USD', 'USD/JPY', 'AUD/USD', 'USD/CHF', 'NZD/USD', 'EUR/GBP', 'USD/CAD', 'EUR/JPY', 'GBP/JPY'];
     const signals = ['BUY', 'SELL', 'HOLD'];
     const risks = ['Low', 'Medium', 'High'];
-    
+
     const pair = pairs[Math.floor(Math.random() * pairs.length)];
     const signal = signals[Math.floor(Math.random() * 3)];
     const confidence = Math.floor(55 + Math.random() * 40);
@@ -433,7 +435,7 @@ function generateRealisticAnalysis() {
     const priceBase = pair.includes('JPY') ? (130 + Math.random() * 30).toFixed(3) : (1.0 + Math.random() * 0.9).toFixed(5);
     const pip = pair.includes('JPY') ? 0.01 : 0.0001;
     const spread = Math.floor(20 + Math.random() * 80);
-    
+
     const entry = parseFloat(priceBase);
     const sl = signal === 'BUY' ? (entry - spread * pip).toFixed(pair.includes('JPY') ? 3 : 5) : (entry + spread * pip).toFixed(pair.includes('JPY') ? 3 : 5);
     const tp = signal === 'BUY' ? (entry + spread * 1.8 * pip).toFixed(pair.includes('JPY') ? 3 : 5) : (entry - spread * 1.8 * pip).toFixed(pair.includes('JPY') ? 3 : 5);
@@ -441,9 +443,9 @@ function generateRealisticAnalysis() {
     const resistance = (entry + spread * 1.2 * pip).toFixed(pair.includes('JPY') ? 3 : 5);
 
     const buyAnalyses = [
-        `The chart shows a clear bullish trend with price action forming higher highs and higher lows. The ${pair} pair is trading above the 50-period and 200-period moving averages, confirming upward momentum. RSI is at ${55 + Math.floor(Math.random()*15)} indicating room for further upside. Volume has been increasing on recent bullish candles, supporting the buy signal. A break above the ${resistance} resistance level could trigger accelerated buying.`,
+        `The chart shows a clear bullish trend with price action forming higher highs and higher lows. The ${pair} pair is trading above the 50-period and 200-period moving averages, confirming upward momentum. RSI is at ${55 + Math.floor(Math.random() * 15)} indicating room for further upside. Volume has been increasing on recent bullish candles, supporting the buy signal. A break above the ${resistance} resistance level could trigger accelerated buying.`,
         `Strong bullish momentum detected on ${pair}. Price has broken above a key descending trendline resistance and is now retesting it as support. The MACD histogram is expanding in positive territory while the Stochastic oscillator shows a fresh bullish crossover from oversold territory. Multiple bullish engulfing candles confirm buyer dominance in recent sessions.`,
-        `${pair} is showing a classic cup-and-handle pattern formation with strong buying pressure. The pair has bounced off the ${support} support zone with significant volume increase. Bollinger Bands are expanding upward suggesting increased volatility in the bull direction. The ADX reading of ${25 + Math.floor(Math.random()*20)} confirms a strong trending market.`
+        `${pair} is showing a classic cup-and-handle pattern formation with strong buying pressure. The pair has bounced off the ${support} support zone with significant volume increase. Bollinger Bands are expanding upward suggesting increased volatility in the bull direction. The ADX reading of ${25 + Math.floor(Math.random() * 20)} confirms a strong trending market.`
     ];
 
     const sellAnalyses = [
@@ -454,13 +456,13 @@ function generateRealisticAnalysis() {
 
     const holdAnalyses = [
         `${pair} is currently in a consolidation phase, trading within a tight range between ${support} and ${resistance}. No clear directional bias is visible as both bulls and bears are fighting for control. RSI is hovering near the 50 level and MACD is flat near the zero line. It is advisable to wait for a breakout above resistance or breakdown below support before taking a position.`,
-        `Mixed signals on ${pair} suggest caution. While the longer-term trend remains intact, short-term indicators are showing conflicting signals. The ADX reading of ${15 + Math.floor(Math.random()*10)} indicates a weak trend environment. Bollinger Bands are contracting, suggesting a potential breakout is imminent but direction remains unclear.`,
+        `Mixed signals on ${pair} suggest caution. While the longer-term trend remains intact, short-term indicators are showing conflicting signals. The ADX reading of ${15 + Math.floor(Math.random() * 10)} indicates a weak trend environment. Bollinger Bands are contracting, suggesting a potential breakout is imminent but direction remains unclear.`,
         `${pair} is forming a symmetrical triangle pattern with converging trendlines. Price is coiling tightly near the apex suggesting an imminent breakout. However, volume has been declining during this consolidation, making it premature to commit to a direction. Wait for a confirmed breakout with volume confirmation before entering a trade.`
     ];
 
     const analysis = signal === 'BUY' ? buyAnalyses[Math.floor(Math.random() * buyAnalyses.length)] :
-                     signal === 'SELL' ? sellAnalyses[Math.floor(Math.random() * sellAnalyses.length)] :
-                     holdAnalyses[Math.floor(Math.random() * holdAnalyses.length)];
+        signal === 'SELL' ? sellAnalyses[Math.floor(Math.random() * sellAnalyses.length)] :
+            holdAnalyses[Math.floor(Math.random() * holdAnalyses.length)];
 
     const buyRecs = [
         ['Consider entering a long position at current price with tight stop loss management', 'Set take profit at the next major resistance level for optimal risk-reward ratio', 'Monitor volume for confirmation of continued bullish momentum'],
@@ -481,16 +483,16 @@ function generateRealisticAnalysis() {
     ];
 
     const recommendations = signal === 'BUY' ? buyRecs[Math.floor(Math.random() * buyRecs.length)] :
-                            signal === 'SELL' ? sellRecs[Math.floor(Math.random() * sellRecs.length)] :
-                            holdRecs[Math.floor(Math.random() * holdRecs.length)];
+        signal === 'SELL' ? sellRecs[Math.floor(Math.random() * sellRecs.length)] :
+            holdRecs[Math.floor(Math.random() * holdRecs.length)];
 
     const indicators = [
-        [`RSI (14): ${signal === 'BUY' ? 55 + Math.floor(Math.random()*15) : signal === 'SELL' ? 25 + Math.floor(Math.random()*15) : 45 + Math.floor(Math.random()*10)} - ${signal === 'BUY' ? 'Bullish momentum, not yet overbought' : signal === 'SELL' ? 'Bearish momentum, approaching oversold' : 'Neutral zone, no clear direction'}`,
-         `MACD (12,26,9): ${signal === 'BUY' ? 'Bullish crossover with expanding histogram' : signal === 'SELL' ? 'Bearish crossover with negative histogram' : 'Flat near zero line, no clear signal'}`],
+        [`RSI (14): ${signal === 'BUY' ? 55 + Math.floor(Math.random() * 15) : signal === 'SELL' ? 25 + Math.floor(Math.random() * 15) : 45 + Math.floor(Math.random() * 10)} - ${signal === 'BUY' ? 'Bullish momentum, not yet overbought' : signal === 'SELL' ? 'Bearish momentum, approaching oversold' : 'Neutral zone, no clear direction'}`,
+        `MACD (12,26,9): ${signal === 'BUY' ? 'Bullish crossover with expanding histogram' : signal === 'SELL' ? 'Bearish crossover with negative histogram' : 'Flat near zero line, no clear signal'}`],
         [`Bollinger Bands (20,2): Price ${signal === 'BUY' ? 'bouncing off lower band with bullish momentum' : signal === 'SELL' ? 'rejected from upper band showing weakness' : 'trading near middle band in consolidation'}`,
-         `Moving Averages: ${signal === 'BUY' ? '50 EMA above 200 EMA (Golden Cross) confirming uptrend' : signal === 'SELL' ? '50 EMA below 200 EMA (Death Cross) confirming downtrend' : 'Moving averages converging, trend uncertain'}`],
+        `Moving Averages: ${signal === 'BUY' ? '50 EMA above 200 EMA (Golden Cross) confirming uptrend' : signal === 'SELL' ? '50 EMA below 200 EMA (Death Cross) confirming downtrend' : 'Moving averages converging, trend uncertain'}`],
         [`Stochastic (14,3,3): ${signal === 'BUY' ? 'Fresh bullish crossover from oversold territory below 20' : signal === 'SELL' ? 'Bearish crossover from overbought territory above 80' : 'Oscillating between 40-60, no extreme readings'}`,
-         `ADX (14): ${20 + Math.floor(Math.random()*25)} - ${signal === 'HOLD' ? 'Weak trend, range-bound conditions' : 'Moderate to strong trend detected, directional move likely'}`]
+        `ADX (14): ${20 + Math.floor(Math.random() * 25)} - ${signal === 'HOLD' ? 'Weak trend, range-bound conditions' : 'Moderate to strong trend detected, directional move likely'}`]
     ];
 
     return {
@@ -571,7 +573,7 @@ function displayResults(result) {
     }
 
     if (result.recommendations && result.recommendations.length > 0) {
-        recommendationsText.innerHTML = '<ul>' + 
+        recommendationsText.innerHTML = '<ul>' +
             result.recommendations.map(r => `<li>${r}</li>`).join('') +
             '</ul>';
     } else {
@@ -647,7 +649,7 @@ btnClearHistory.addEventListener('click', () => {
     analysisHistory = [];
     localStorage.removeItem('forexHistory');
     renderHistory();
-    showToast('History cleared! ðŸ—‘ï¸');
+    showToast('History cleared! 🗑️');
 });
 
 // ===== Toast Notification =====
@@ -680,7 +682,7 @@ function showToast(msg, isError = false) {
     `;
 
     document.body.appendChild(toast);
-    
+
     requestAnimationFrame(() => {
         toast.style.opacity = '1';
         toast.style.transform = 'translateX(-50%) translateY(0)';
@@ -703,7 +705,7 @@ document.addEventListener('keydown', (e) => {
 // ===== Init =====
 function init() {
     const savedUser = localStorage.getItem('forexUser');
-    
+
     if (savedUser) {
         try {
             const user = JSON.parse(savedUser);
