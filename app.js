@@ -295,14 +295,10 @@ function resetAppUI() {
 
 btnLogout.addEventListener('click', () => {
     localStorage.removeItem('forexUser');
-    analysisHistory = [];
-    renderHistory();
-    resetAppUI();
     if (typeof google !== 'undefined' && google.accounts) {
         google.accounts.id.disableAutoSelect();
     }
-    showLogin();
-    showToast('Signed out successfully! 👋');
+    window.location.reload();
 });
 
 // ===== File Upload =====
