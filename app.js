@@ -1,5 +1,5 @@
 // ===== CONFIG =====
-const API_KEY = 'KODI_KOT_PER_MOMENTIN';'AQ.Ab8RN6LzDd2wHp7xY_nhzy9d63SG9p2NkJxGH7QWJpiYvAsysQ';
+const API_KEY = 'AQ.Ab8RN6JadOvP3B-edI3uF26W1pUIrk8jtXd0UB2WsqjZKPGKpw';
 const GOOGLE_CLIENT_ID = '1079670700266-g4mdqk5n6jp2sum7565tkqdbvj325i18.apps.googleusercontent.com';
 const STRIPE_KEY = 'pk_test_51TgpWxAMyJs7lzfl1EP07jsUpXU7YalABv4orCUxnEzgs1gm5SmpFQ7o9LJrXHIXI1WxoUifRRjDEQJwsKP1SD7d00j12KTb10';
 const DAILY_FREE_LIMIT = 3;
@@ -393,10 +393,10 @@ RESPOND IN THE FOLLOWING JSON FORMAT ONLY (only JSON, no other text):
 Carefully analyze: the trend, support/resistance levels, candlestick formations, volume, and any technical indicators visible on the chart. Respond ONLY in JSON format.`;
 
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`,
             {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'x-goog-api-key': API_KEY },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     contents: [{
                         parts: [
