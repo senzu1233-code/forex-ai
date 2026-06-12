@@ -754,6 +754,60 @@ function init() {
     }
 
     checkPaymentSuccess();
+    initTicker();
+}
+
+// ===== Live Ticker =====
+const tickerPairs = [
+    { pair: 'EUR/USD', price: 1.0845, change: 0.12 },
+    { pair: 'GBP/USD', price: 1.2632, change: -0.05 },
+    { pair: 'USD/JPY', price: 150.24, change: 0.34 },
+    { pair: 'XAU/USD', price: 2345.60, change: 1.2 },
+    { pair: 'BTC/USD', price: 65430.00, change: 2.4 },
+    { pair: 'ETH/USD', price: 3450.20, change: -1.1 },
+    { pair: 'AUD/USD', price: 0.6540, change: 0.08 },
+    { pair: 'USD/CHF', price: 0.8850, change: -0.15 }
+];
+
+function initTicker() {
+    const tickerWrap = document.getElementById('priceTicker');
+    const tickerContent = document.getElementById('tickerContent');
+    
+    if (!tickerWrap || !tickerContent) return;
+    
+    tickerWrap.style.display = 'block';
+
+    function renderTicker() {
+        let html = '';
+        // Create two sets for seamless infinite scrolling
+        for (let i = 0; i < 2; i++) {
+            tickerPairs.forEach(t => {
+                const changeClass = t.change >= 0 ? 'up' : 'down';
+                const changeSign = t.change >= 0 ? '+' : '';
+                const decimals = t.price > 1000 ? 2 : 4;
+                html += `
+                    <div class="ticker-item">
+                        <span class="ticker-pair">${t.pair}</span>
+                        <span class="ticker-price">${t.price.toFixed(decimals)}</span>
+                        <span class="ticker-change ${changeClass}">${changeSign}${t.change.toFixed(2)}%</span>
+                    </div>
+                `;
+            });
+        }
+        tickerContent.innerHTML = html;
+    }
+
+    // Update prices randomly every 3 seconds to look alive
+    setInterval(() => {
+        tickerPairs.forEach(t => {
+            const fluctuation = (Math.random() - 0.5) * 0.001;
+            t.price = t.price * (1 + fluctuation);
+            t.change = t.change + (fluctuation * 100);
+        });
+        renderTicker();
+    }, 3000);
+
+    renderTicker();
 }
 
 init();
