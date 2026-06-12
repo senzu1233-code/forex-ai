@@ -62,7 +62,7 @@ function canAnalyze() {
 }
 
 function getRemainingAnalyses() {
-    if (isPremium()) return '∞';
+    if (isPremium()) return 'âˆž';
     return Math.max(0, DAILY_FREE_LIMIT - getUsageToday());
 }
 
@@ -180,7 +180,7 @@ checkoutForm.addEventListener('submit', (e) => {
         paySpinner.style.display = 'none';
         btnPay.disabled = false;
         
-        showToast('🎉 Duke hapur PayPal... Llogaria po bëhet Premium!');
+        showToast('ðŸŽ‰ Duke hapur PayPal... Llogaria po bÃ«het Premium!');
     }, 1500);
 });
 
@@ -190,7 +190,7 @@ function checkPaymentSuccess() {
     if (params.get('payment') === 'success') {
         localStorage.setItem('forexPremium', 'true');
         updateUsageDisplay();
-        showToast('🎉 Payment successful! Welcome to Premium!');
+        showToast('ðŸŽ‰ Payment successful! Welcome to Premium!');
         window.history.replaceState({}, '', window.location.pathname);
     }
 }
@@ -274,7 +274,7 @@ btnLogout.addEventListener('click', () => {
         google.accounts.id.disableAutoSelect();
     }
     showLogin();
-    showToast('Signed out successfully! 👋');
+    showToast('Signed out successfully! ðŸ‘‹');
 });
 
 // ===== File Upload =====
@@ -310,12 +310,12 @@ uploadZone.addEventListener('drop', (e) => {
 
 function handleFile(file) {
     if (!file.type.startsWith('image/')) {
-        showToast('Please upload images only! ⚠️');
+        showToast('Please upload images only! âš ï¸');
         return;
     }
 
     if (file.size > 10 * 1024 * 1024) {
-        showToast('Image is too large (max 10MB)! ⚠️');
+        showToast('Image is too large (max 10MB)! âš ï¸');
         return;
     }
 
@@ -647,7 +647,7 @@ btnClearHistory.addEventListener('click', () => {
     analysisHistory = [];
     localStorage.removeItem('forexHistory');
     renderHistory();
-    showToast('History cleared! 🗑️');
+    showToast('History cleared! ðŸ—‘ï¸');
 });
 
 // ===== Toast Notification =====
