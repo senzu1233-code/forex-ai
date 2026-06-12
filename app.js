@@ -676,7 +676,7 @@ function renderHistory() {
 
 btnClearHistory.addEventListener('click', () => {
     analysisHistory = [];
-    localStorage.removeItem('forexHistory');
+    localStorage.removeItem('forexHistory_' + getUserEmail());
     renderHistory();
     showToast('History cleared! 🗑️');
 });
