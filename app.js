@@ -393,10 +393,10 @@ RESPOND IN THE FOLLOWING JSON FORMAT ONLY (only JSON, no other text):
 Carefully analyze: the trend, support/resistance levels, candlestick formations, volume, and any technical indicators visible on the chart. Respond ONLY in JSON format.`;
 
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`,
             {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'x-goog-api-key': API_KEY },
                 body: JSON.stringify({
                     contents: [{
                         parts: [
