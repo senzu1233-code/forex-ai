@@ -283,10 +283,21 @@ function initGoogleSignIn() {
     }
 }
 
+function resetAppUI() {
+    currentImageBase64 = null;
+    uploadZone.classList.remove('has-image');
+    uploadPreview.style.display = 'none';
+    uploadContent.style.display = 'flex';
+    fileInput.value = '';
+    resultsSection.style.display = 'none';
+    btnAnalyze.disabled = true;
+}
+
 btnLogout.addEventListener('click', () => {
     localStorage.removeItem('forexUser');
     analysisHistory = [];
     renderHistory();
+    resetAppUI();
     if (typeof google !== 'undefined' && google.accounts) {
         google.accounts.id.disableAutoSelect();
     }
