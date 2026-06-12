@@ -34,11 +34,22 @@ const usageCounter = document.getElementById('usageCounter');
 const usageText = document.getElementById('usageText');
 
 let currentImageBase64 = null;
-let analysisHistory = JSON.parse(localStorage.getItem('forexHistory') || '[]');
+let analysisHistory = [];
+
+function getUserEmail() {
+    try {
+        const userStr = localStorage.getItem('forexUser');
+        if (!userStr) return 'guest';
+        const user = JSON.parse(userStr);
+        return user.email || 'guest';
+    } catch (e) {
+        return 'guest';
+    }
+}
 
 // ===== Usage Tracking =====
 function getTodayKey() {
-    return 'forexUsage_' + new Date().toISOString().split('T')[0];
+    return 'forexUsage_' + getUserEmail() + '_' + new Date().toISOString().split('T')[0];
 }
 
 function getUsageToday() {
@@ -237,6 +248,8 @@ function showApp(user) {
     userAvatar.src = user.picture || '';
     userName.textContent = user.name || user.email || 'User';
 
+    analysisHistory = JSON.parse(localStorage.getItem('forexHistory_' + getUserEmail()) || '[]');
+    renderHistory();
     updateUsageDisplay();
 }
 
@@ -272,6 +285,8 @@ function initGoogleSignIn() {
 
 btnLogout.addEventListener('click', () => {
     localStorage.removeItem('forexUser');
+    analysisHistory = [];
+    renderHistory();
     if (typeof google !== 'undefined' && google.accounts) {
         google.accounts.id.disableAutoSelect();
     }
@@ -429,7 +444,7 @@ function generateRealisticAnalysis(base64Str = '') {
         hash = ((hash << 5) - hash) + base64Str.charCodeAt(i);
         hash |= 0;
     }
-    
+
     // Custom seeded random function
     let seed = Math.abs(hash) || Date.now();
     const random = () => {
@@ -617,7 +632,7 @@ function saveToHistory(result) {
 
     analysisHistory.unshift(entry);
     if (analysisHistory.length > 20) analysisHistory = analysisHistory.slice(0, 20);
-    localStorage.setItem('forexHistory', JSON.stringify(analysisHistory));
+    localStorage.setItem('forexHistory_' + getUserEmail(), JSON.stringify(analysisHistory));
     renderHistory();
 }
 
@@ -731,7 +746,6 @@ function init() {
         showLogin();
     }
 
-    renderHistory();
     checkPaymentSuccess();
 }
 
