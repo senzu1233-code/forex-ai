@@ -14,6 +14,9 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://js.stripe.com/v3/"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 
 <body>
@@ -306,7 +309,6 @@
                     </div>
                 </div>
 
-                <!-- Crypto Section -->
                 <div class="pay-section" id="sec-crypto" style="display: none;">
                     <div class="crypto-box">
                         <p class="crypto-title">Send exactly <strong>40 USDT (TRC20)</strong></p>
@@ -314,7 +316,13 @@
                             <input type="text" id="cryptoAddress" value="THGjk3qoKtQnQwnNLsLhcCij7i1syFT5ng" readonly>
                             <button type="button" id="btnCopyCrypto">Copy</button>
                         </div>
-                        <div class="crypto-status">
+                        <div style="margin-top: 15px; padding: 12px; background: rgba(41, 98, 255, 0.08); border-radius: 8px; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">
+                            After making the payment, send a <strong>Screenshot</strong> to Support along with:<br>
+                            ✅ <strong>Name, Surname, Gmail</strong><br><br>
+                            👉 <a href="https://t.me/Forex_Al_org" id="telegramLink" target="_blank" style="color: var(--blue); font-weight: 700; text-decoration: none;">Support Telegram</a> <br>
+                            to activate your Premium immediately!
+                        </div>
+                        <div class="crypto-status" style="margin-top: 15px;">
                             <span class="spinner-small"></span> Awaiting payment confirmation...
                         </div>
                     </div>
