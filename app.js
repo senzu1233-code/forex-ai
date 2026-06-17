@@ -4,6 +4,38 @@ const GOOGLE_CLIENT_ID = '1079670700266-g4mdqk5n6jp2sum7565tkqdbvj325i18.apps.go
 const STRIPE_KEY = 'pk_test_51TgpWxAMyJs7lzfl1EP07jsUpXU7YalABv4orCUxnEzgs1gm5SmpFQ7o9LJrXHIXI1WxoUifRRjDEQJwsKP1SD7d00j12KTb10';
 const DAILY_FREE_LIMIT = 3;
 
+// ===== Firebase Init =====
+const firebaseConfig = {
+  apiKey: "AIzaSyBBNi0iyMGBrMYmr8zx6veGceHuj76ufCo",
+  authDomain: "forex-ai-org.firebaseapp.com",
+  projectId: "forex-ai-org",
+  storageBucket: "forex-ai-org.firebasestorage.app",
+  messagingSenderId: "22737653340",
+  appId: "1:22737653340:web:13d5010254c021ad59e099"
+};
+
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.firestore();
+
+let isFirebasePremium = false;
+
+function checkFirebasePremiumStatus(email) {
+    if (!email) return;
+    db.collection('premium_users').doc(email).get().then(doc => {
+        if (doc.exists) {
+            isFirebasePremium = true;
+            updateUsageDisplay();
+        } else {
+            isFirebasePremium = false;
+            updateUsageDisplay();
+        }
+    }).catch(err => {
+        console.error("Error fetching premium status", err);
+    });
+}
+
 // ===== Stripe Init =====
 const stripe = Stripe(STRIPE_KEY);
 
@@ -66,7 +98,7 @@ function incrementUsage() {
 function isPremium() {
     const userStr = localStorage.getItem('forexUser');
     if (userStr && userStr.includes('Mario Deliu')) return true;
-    return localStorage.getItem('forexPremium') === 'true';
+    return isFirebasePremium;
 }
 
 function canAnalyze() {
@@ -295,6 +327,9 @@ function showApp(user) {
 
     userAvatar.src = user.picture || '';
     userName.textContent = user.name || user.email || 'User';
+
+    // Check premium status in Firebase
+    checkFirebasePremiumStatus(user.email);
 
     analysisHistory = JSON.parse(localStorage.getItem('forexHistory_' + getUserEmail()) || '[]');
     renderHistory();
