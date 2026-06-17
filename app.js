@@ -168,6 +168,48 @@ cardExpiry.addEventListener('input', (e) => {
     e.target.value = val;
 });
 
+// ===== Payment Tabs Logic =====
+const payTabs = document.querySelectorAll('.pay-tab');
+const paySections = document.querySelectorAll('.pay-section');
+let currentPayMethod = 'card';
+
+payTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        payTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        currentPayMethod = tab.dataset.method;
+        paySections.forEach(s => s.style.display = 'none');
+        document.getElementById(`sec-${currentPayMethod}`).style.display = 'block';
+
+        const req = (currentPayMethod === 'card');
+        document.getElementById('cardNumber').required = req;
+        document.getElementById('cardExpiry').required = req;
+        document.getElementById('cardCvc').required = req;
+        document.getElementById('cardName').required = req;
+
+        if (currentPayMethod === 'card') {
+            payText.textContent = 'Pay $40';
+        } else if (currentPayMethod === 'paypal') {
+            payText.textContent = 'Continue to PayPal';
+        } else if (currentPayMethod === 'crypto') {
+            payText.textContent = 'I Have Sent Payment';
+        }
+    });
+});
+
+const btnCopyCrypto = document.getElementById('btnCopyCrypto');
+if (btnCopyCrypto) {
+    btnCopyCrypto.addEventListener('click', () => {
+        const address = document.getElementById('cryptoAddress');
+        address.select();
+        document.execCommand('copy');
+        const oldText = btnCopyCrypto.textContent;
+        btnCopyCrypto.textContent = 'Copied!';
+        setTimeout(() => btnCopyCrypto.textContent = oldText, 2000);
+    });
+}
+
 // Process Fake Payment
 checkoutForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -179,8 +221,16 @@ checkoutForm.addEventListener('submit', (e) => {
 
     // Simulate API delay
     setTimeout(() => {
+        if (currentPayMethod === 'crypto') {
+            showToast('⚠️ Payment not detected yet. Blockchain confirmation takes 3-5 minutes.', true);
+            payText.style.display = 'block';
+            paySpinner.style.display = 'none';
+            btnPay.disabled = false;
+            return;
+        }
+
         // Redirect to PayPal.me link
-        window.open('https://paypal.me/mario12944/40', '_blank');
+        window.open('https://paypal.me/ForexAI1/40', '_blank');
 
         // Success
         localStorage.setItem('forexPremium', 'true');
