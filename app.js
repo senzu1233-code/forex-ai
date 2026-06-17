@@ -229,12 +229,10 @@ checkoutForm.addEventListener('submit', (e) => {
             return;
         }
 
-        // Redirect to PayPal.me link
+        // Redirect to PayPal.me link for actual payment
         window.open('https://paypal.me/ForexAI1/40', '_blank');
 
-        // Success
-        localStorage.setItem('forexPremium', 'true');
-        updateUsageDisplay();
+        // Close modal but do NOT grant premium
         checkoutModal.classList.remove('show');
 
         // Reset form
@@ -243,7 +241,7 @@ checkoutForm.addEventListener('submit', (e) => {
         paySpinner.style.display = 'none';
         btnPay.disabled = false;
 
-        showToast('🎉 Duke hapur PayPal... Llogaria po bëhet Premium!');
+        showToast('📨 Complete payment in PayPal. Premium activates within 1 hour after verification.');
     }, 1500);
 });
 
