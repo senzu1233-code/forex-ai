@@ -1047,8 +1047,9 @@ body {
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(8px);
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
+    overflow-y: auto;
     z-index: 1000;
     opacity: 0;
     pointer-events: none;
@@ -1068,8 +1069,7 @@ body {
     padding: 36px;
     max-width: 720px;
     width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
+    margin: auto;
     position: relative;
     transform: translateY(20px) scale(0.95);
     transition: var(--transition);
