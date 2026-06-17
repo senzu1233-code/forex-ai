@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Forex AI Chart Analyzer - Upload your chart screenshot and get AI-powered Buy/Sell signals with detailed analysis">
+    <title>Forex AI Analyzer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Favicon (Ikona e Faqes) -->
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="favicon.png">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://js.stripe.com/v3/"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+</head>
+
+<body>
+    <!-- Background Effects -->
+    <div class="bg-grid"></div>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="bg-forex-elements">
+        <!-- Floating Elements -->
+        <div class="forex-el el-1">€</div>
+        <div class="forex-el el-2">$</div>
+        <div class="forex-el el-3">£</div>
+        <div class="forex-el el-4">¥</div>
+        <div class="forex-el el-5">
+            <div class="candle-up"></div>
+        </div>
+        <div class="forex-el el-6">
+            <div class="candle-down"></div>
+        </div>
+        <div class="forex-el el-7">
+            <div class="candle-up"></div>
+        </div>
+        <div class="forex-el el-8">
+            <div class="candle-down"></div>
+        </div>
+        <div class="forex-el el-9">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 3v18h18" />
+                <path d="M18 9l-5 5-4-4-6 6" />
+            </svg>
+        </div>
+        <div class="forex-el el-10">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+        </div>
+    </div>
+
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-card">
+            <div class="login-logo">
+                <div class="logo-icon logo-icon-lg">
+                    <svg viewBox="0 0 32 32" fill="none">
+                        <path d="M4 24L10 14L16 18L22 8L28 12" stroke="url(#gradLogin)" stroke-width="2.5"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M22 8L28 8L28 12" stroke="url(#gradLogin)" stroke-width="2.5" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <defs>
+                            <linearGradient id="gradLogin" x1="4" y1="24" x2="28" y2="8">
+                                <stop stop-color="#00c853" />
+                                <stop offset="1" stop-color="#2962ff" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <h1 class="login-title">Forex<span class="logo-ai">AI</span></h1>
+            </div>
+            <p class="login-subtitle">AI-Powered Forex Chart Analysis</p>
+            <p class="login-desc">Sign in with your Google account to start analyzing charts with artificial
+                intelligence.</p>
+            <div class="google-btn-wrapper">
+                <div id="googleSignInBtn"></div>
+            </div>
+            <p class="login-terms">By signing in, you agree to use this tool for educational purposes only.</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header" id="appHeader" style="display:none;">
+        <div class="header-inner">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 32 32" fill="none">
+                        <path d="M4 24L10 14L16 18L22 8L28 12" stroke="url(#grad)" stroke-width="2.5"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M22 8L28 8L28 12" stroke="url(#grad)" stroke-width="2.5" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <defs>
+                            <linearGradient id="grad" x1="4" y1="24" x2="28" y2="8">
+                                <stop stop-color="#00c853" />
+                                <stop offset="1" stop-color="#2962ff" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <span class="logo-text">Forex<span class="logo-ai">AI</span></span>
+            </div>
+            <div class="header-actions">
+                <button class="btn-pricing" id="btnPricing">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                    </svg>
+                    <span id="planBadge" class="plan-badge free">Free</span>
+                </button>
+                <div class="usage-counter" id="usageCounter">
+                    <span id="usageText">3/3 left</span>
+                </div>
+                <div class="user-profile" id="userProfile">
+                    <img class="user-avatar" id="userAvatar" alt="Avatar" src="">
+                    <span class="user-name" id="userName"></span>
+                </div>
+                <button class="btn-logout" id="btnLogout" title="Sign Out">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Live Ticker -->
+    <div class="ticker-wrap" id="priceTicker" style="display:none;">
+        <div class="ticker-move" id="tickerContent">
+            <!-- Ticker items will be generated here -->
+        </div>
+    </div>
+
+    <!-- Pricing Modal -->
+    <div class="modal-overlay" id="pricingModal">
+        <div class="pricing-modal">
+            <button class="modal-close" id="pricingClose">&times;</button>
+            <h2 class="pricing-title">Upgrade to <span class="gradient-text">Premium</span></h2>
+            <p class="pricing-subtitle">Unlock unlimited AI-powered chart analysis</p>
+
+            <div class="pricing-cards">
+                <!-- Free Plan -->
+                <div class="pricing-card">
+                    <div class="pricing-plan-name">Free</div>
+                    <div class="pricing-price">
+                        <span class="price-amount">$0</span>
+                        <span class="price-period">/month</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li class="included">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            3 analyses per day
+                        </li>
+                        <li class="included">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Basic Buy/Sell signals
+                        </li>
+                        <li class="included">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Analysis history
+                        </li>
+                        <li class="excluded">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                            Key levels & indicators
+                        </li>
+                        <li class="excluded">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                            Priority AI processing
+                        </li>
+                    </ul>
+                    <button class="btn-plan current" disabled>Current Plan</button>
+                </div>
+
+                <!-- Premium Plan -->
+                <div class="pricing-card premium">
+                    <div class="popular-badge">Most Popular</div>
+                    <div class="pricing-plan-name">Premium</div>
+                    <div class="pricing-price">
+                        <span class="price-amount">$40</span>
+                        <span class="price-period">/month</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li class="included">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Unlimited analyses
+                        </li>
+                        <li class="included">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Advanced Buy/Sell signals
+                        </li>
+                        <li class="included">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Analysis history
+                        </li>
+                        <li class="included">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Key levels & indicators
+                        </li>
+                        <li class="included">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Priority AI processing
+                        </li>
+                    </ul>
+                    <button class="btn-plan upgrade" id="btnUpgrade">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                        </svg>
+                        Upgrade Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div class="modal-overlay" id="checkoutModal">
+        <div class="checkout-modal">
+            <button class="modal-close" id="checkoutClose">&times;</button>
+            <div class="checkout-header">
+                <h3>Complete Payment</h3>
+                <p>ForexAI Premium - $40/month</p>
+            </div>
+
+            <div class="payment-tabs">
+                <button type="button" class="pay-tab active" data-method="card">Card</button>
+                <button type="button" class="pay-tab" data-method="paypal">PayPal</button>
+                <button type="button" class="pay-tab" data-method="crypto">Crypto</button>
+            </div>
+
+            <form class="checkout-form" id="checkoutForm">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="checkoutEmail" required placeholder="you@example.com">
+                </div>
+
+                <!-- Card Section -->
+                <div class="pay-section active" id="sec-card">
+                    <div class="form-group">
+                        <label>Card Information</label>
+                        <div class="card-input-wrapper">
+                            <svg class="card-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                                <line x1="1" y1="10" x2="23" y2="10"></line>
+                            </svg>
+                            <input type="text" id="cardNumber" class="card-number" placeholder="0000 0000 0000 0000"
+                                maxlength="19" required>
+                        </div>
+                        <div class="card-details-row">
+                            <input type="text" id="cardExpiry" placeholder="MM / YY" maxlength="7" required>
+                            <input type="text" id="cardCvc" placeholder="CVC" maxlength="4" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Name on Card</label>
+                        <input type="text" id="cardName" required placeholder="John Doe">
+                    </div>
+                </div>
+
+                <!-- PayPal Section -->
+                <div class="pay-section" id="sec-paypal" style="display: none;">
+                    <div class="paypal-box">
+                        <svg viewBox="0 0 24 24" width="40" height="40" fill="#0079C1">
+                            <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 3.72a.64.64 0 0 1 .633-.54h8.525c2.906 0 5.123.86 6.136 2.82.44 1.13.56 2.47.16 4.31-1.07 4.98-4.5 7.67-9.52 7.67H8.8c-.53 0-.94.39-1.03.92l-1.06 6.36c-.05.27-.29.46-.56.46l-.07-.02z"/>
+                        </svg>
+                        <p>You will be securely redirected to PayPal to complete your purchase.</p>
+                    </div>
+                </div>
+
+                <div class="pay-section" id="sec-crypto" style="display: none;">
+                    <div class="crypto-box">
+                        <p class="crypto-title">Send exactly <strong>40 USDT (TRC20)</strong></p>
+                        <div class="crypto-address-wrapper">
+                            <input type="text" id="cryptoAddress" value="THGjk3qoKtQnQwnNLsLhcCij7i1syFT5ng" readonly>
+                            <button type="button" id="btnCopyCrypto">Copy</button>
+                        </div>
+                        <div style="margin-top: 15px; padding: 12px; background: rgba(41, 98, 255, 0.08); border-radius: 8px; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">
+                            After making the payment, send a <strong>Screenshot</strong> to Support along with:<br>
+                            ✅ <strong>Name, Surname, Gmail</strong><br><br>
+                            👉 <a href="https://t.me/Forex_Al_org" id="telegramLink" target="_blank" style="color: var(--blue); font-weight: 700; text-decoration: none;">Support Telegram</a> <br>
+                            to activate your Premium immediately!
+                        </div>
+                        <div class="crypto-status" style="margin-top: 15px;">
+                            <span class="spinner-small"></span> Awaiting payment confirmation...
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-pay" id="btnPay">
+                    <span class="pay-text">Pay $40</span>
+                    <div class="spinner pay-spinner" style="display:none;"></div>
+                </button>
+                <div class="secure-badge">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    Payments are secure and encrypted
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main" id="appMain" style="display:none;">
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1>Analyze Forex Charts <br><span class="gradient-text">with Artificial Intelligence</span></h1>
+            <p class="hero-desc">Upload a chart screenshot and get professional analysis with Buy/Sell signals, risk
+                levels, and detailed recommendations.</p>
+        </section>
+
+        <!-- Upload Section -->
+        <section class="upload-section">
+            <div class="upload-zone" id="uploadZone">
+                <div class="upload-content" id="uploadContent">
+                    <div class="upload-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="17 8 12 3 7 8" />
+                            <line x1="12" y1="3" x2="12" y2="15" />
+                        </svg>
+                    </div>
+                    <h3>Drag & drop your chart here</h3>
+                    <p>or click to browse</p>
+                    <span class="upload-formats">PNG, JPG, WEBP — Max 10MB</span>
+                </div>
+                <div class="upload-preview" id="uploadPreview" style="display:none;">
+                    <img id="previewImg" alt="Preview">
+                    <button class="btn-remove" id="btnRemove" title="Remove image">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                    </button>
+                </div>
+                <input type="file" id="fileInput" accept="image/*" hidden>
+            </div>
+
+            <button class="btn-analyze" id="btnAnalyze" disabled>
+                <span class="btn-text">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                    </svg>
+                    Analyze with AI
+                </span>
+                <span class="btn-loading" style="display:none;">
+                    <div class="spinner"></div>
+                    Analyzing...
+                </span>
+            </button>
+        </section>
+
+        <!-- Results Section -->
+        <section class="results-section" id="resultsSection" style="display:none;">
+            <div class="results-header">
+                <h2>📊 Analysis Results</h2>
+                <div class="results-timestamp" id="resultsTime"></div>
+            </div>
+
+            <div class="signal-card" id="signalCard">
+                <div class="signal-main">
+                    <div class="signal-badge" id="signalBadge">BUY</div>
+                    <div class="signal-details">
+                        <div class="signal-label">Main Signal</div>
+                        <div class="signal-pair" id="signalPair">—</div>
+                    </div>
+                </div>
+                <div class="signal-metrics">
+                    <div class="metric">
+                        <span class="metric-label">Confidence</span>
+                        <div class="metric-bar">
+                            <div class="metric-fill" id="confidenceFill"></div>
+                        </div>
+                        <span class="metric-value" id="confidenceValue">—</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Risk</span>
+                        <span class="metric-value risk-badge" id="riskValue">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analysis-grid">
+                <div class="analysis-card">
+                    <div class="card-header">
+                        <span class="card-icon">📝</span>
+                        <h3>Detailed Analysis</h3>
+                    </div>
+                    <div class="card-body" id="analysisText"></div>
+                </div>
+
+                <div class="analysis-card">
+                    <div class="card-header">
+                        <span class="card-icon">🎯</span>
+                        <h3>Key Levels</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="levels-grid" id="levelsGrid"></div>
+                    </div>
+                </div>
+
+                <div class="analysis-card full-width">
+                    <div class="card-header">
+                        <span class="card-icon">💡</span>
+                        <h3>Recommendations</h3>
+                    </div>
+                    <div class="card-body" id="recommendationsText"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- History Section -->
+        <section class="history-section" id="historySection" style="display:none;">
+            <div class="history-header">
+                <h2>📋 Analysis History</h2>
+                <button class="btn-clear-history" id="btnClearHistory">Clear</button>
+            </div>
+            <div class="history-list" id="historyList"></div>
+        </section>
+    </main>
+
+    <!-- Floating Support Button -->
+    <a href="https://t.me/Forex_Al_org" target="_blank" class="floating-support" title="Contact Support">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.18-.08-.05-.19-.02-.27 0-.12.03-1.96 1.25-5.54 3.69-.52.36-1 .53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.29-.48.79-.74 3.08-1.34 5.15-2.23 6.19-2.66 2.95-1.23 3.56-1.44 3.96-1.45.09 0 .28.02.41.11.1.07.13.16.14.23.01.12.01.25 0 .33z"/>
+        </svg>
+    </a>
+
+    <script src="app.js"></script>
+</body>
+</html>
