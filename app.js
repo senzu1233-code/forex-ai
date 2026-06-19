@@ -1,5 +1,5 @@
 // ===== CONFIG =====
-const API_KEY = 'AQ.Ab8RN6JadOvP3B-edI3uF26W1pUIrk8jtXd0UB2WsqjZKPGKpw';
+const API_KEY = 'AQ.Ab8RN6JrLxbOAdPoiocgLTkx_ttxXCuFZ2NBhkYx2sbCixOfHw';
 const GOOGLE_CLIENT_ID = '1079670700266-g4mdqk5n6jp2sum7565tkqdbvj325i18.apps.googleusercontent.com';
 const STRIPE_KEY = 'pk_test_51TgpWxAMyJs7lzfl1EP07jsUpXU7YalABv4orCUxnEzgs1gm5SmpFQ7o9LJrXHIXI1WxoUifRRjDEQJwsKP1SD7d00j12KTb10';
 const DAILY_FREE_LIMIT = 3;
@@ -486,7 +486,7 @@ async function analyzeChart() {
             const prompt = `You are a professional Forex market analyst with 20+ years of experience. Analyze this Forex chart and provide a detailed analysis.\n\nRESPOND IN THE FOLLOWING JSON FORMAT ONLY (only JSON, no other text):\n{\n    "signal": "BUY" or "SELL" or "HOLD",\n    "pair": "the currency pair you see (e.g. EUR/USD)",\n    "confidence": number from 1-100,\n    "risk": "Low" or "Medium" or "High",\n    "analysis": "Detailed technical analysis explanation in English (3-5 sentences)",\n    "entry": "entry price (or \'N/A\')",\n    "stopLoss": "stop loss price (or \'N/A\')",\n    "takeProfit": "take profit price (or \'N/A\')",\n    "support": "support level (or \'N/A\')",\n    "resistance": "resistance level (or \'N/A\')",\n    "recommendations": ["recommendation 1 in English", "recommendation 2", "recommendation 3"],\n    "indicators": ["indicator 1 with explanation", "indicator 2 with explanation"]\n}\n\nCarefully analyze: the trend, support/resistance levels, candlestick formations, volume, and any technical indicators visible on the chart. Respond ONLY in JSON format.`;
 
             const response = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`,
+                `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -497,7 +497,10 @@ async function analyzeChart() {
                 }
             );
 
-            if (!response.ok) throw new Error('API failed');
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error?.message || `API Error ${response.status}`);
+            }
             const data = await response.json();
             const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
             if (!text) throw new Error('No response');
@@ -505,9 +508,8 @@ async function analyzeChart() {
             if (!jsonMatch) throw new Error('Bad format');
             result = JSON.parse(jsonMatch[0]);
         } catch (aiError) {
-            // AI not available, use smart analysis engine
-            await new Promise(resolve => setTimeout(resolve, 2500 + Math.random() * 2000));
-            result = generateRealisticAnalysis(currentImageBase64);
+            console.error("Gemini API Error: ", aiError);
+            throw new Error('Analiza me AI dështoi: ' + aiError.message);
         }
 
         // Increment usage after successful analysis
