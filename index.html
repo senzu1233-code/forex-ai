@@ -12,6 +12,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    
+    <!-- Favicon (Ikona e Faqes) -->
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="favicon.png">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://js.stripe.com/v3/"></script>
     <!-- Firebase SDKs -->
@@ -381,7 +385,21 @@
                 <input type="file" id="fileInput" accept="image/*" hidden>
             </div>
 
-            <button class="btn-analyze" id="btnAnalyze" disabled>
+            <div class="pair-selector" style="margin-top: 15px; margin-bottom: 15px; text-align: center;">
+                <label for="manualPair" style="color: var(--text-muted); margin-right: 10px; font-weight: 500;">Pala Valutore (Zgjidhni me dorë):</label>
+                <select id="manualPair" style="padding: 10px 15px; border-radius: var(--radius); background: var(--surface-light); border: 1px solid var(--border); color: var(--text); font-family: 'Inter', sans-serif; cursor: pointer; outline: none; font-weight: 600;">
+                    <option value="EUR/USD">EUR/USD</option>
+                    <option value="GBP/USD">GBP/USD</option>
+                    <option value="USD/JPY">USD/JPY</option>
+                    <option value="USD/CHF">USD/CHF</option>
+                    <option value="AUD/USD">AUD/USD</option>
+                    <option value="NZD/USD">NZD/USD</option>
+                    <option value="EUR/GBP">EUR/GBP</option>
+                    <option value="EUR/JPY">EUR/JPY</option>
+                    <option value="XAU/USD">Ar (XAU/USD)</option>
+                    <option value="BTC/USD">Bitcoin (BTC/USD)</option>
+                </select>
+            </div>            <button class="btn-analyze" id="btnAnalyze" disabled>
                 <span class="btn-text">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
