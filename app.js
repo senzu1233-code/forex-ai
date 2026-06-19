@@ -1,5 +1,5 @@
 // ===== CONFIG =====
-const API_KEY = 'AIzaSyCr8IaaFWgupCkbxL21sNp6Sl2cGb8B3l0';
+const API_KEY = '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';
 const GOOGLE_CLIENT_ID = '1079670700266-g4mdqk5n6jp2sum7565tkqdbvj325i18.apps.googleusercontent.com';
 const STRIPE_KEY = 'pk_test_51TgpWxAMyJs7lzfl1EP07jsUpXU7YalABv4orCUxnEzgs1gm5SmpFQ7o9LJrXHIXI1WxoUifRRjDEQJwsKP1SD7d00j12KTb10';
 const DAILY_FREE_LIMIT = 3;
@@ -480,35 +480,45 @@ async function analyzeChart() {
 
         // Try real AI first
         try {
-            const base64Data = currentImageBase64.split(',')[1];
-            const mimeType = currentImageBase64.split(';')[0].split(':')[1];
+            const manualPairEl = document.getElementById('manualPair');
+            const selectedPairText = manualPairEl ? manualPairEl.value : "the currency pair shown in the image";
 
-            const prompt = `You are a professional Forex market analyst with 20+ years of experience. Analyze this Forex chart and provide a detailed analysis.\n\nRESPOND IN THE FOLLOWING JSON FORMAT ONLY (only JSON, no other text):\n{\n    "signal": "BUY" or "SELL" or "HOLD",\n    "pair": "the currency pair you see (e.g. EUR/USD)",\n    "confidence": number from 1-100,\n    "risk": "Low" or "Medium" or "High",\n    "analysis": "Detailed technical analysis explanation in English (3-5 sentences)",\n    "entry": "entry price (or \'N/A\')",\n    "stopLoss": "stop loss price (or \'N/A\')",\n    "takeProfit": "take profit price (or \'N/A\')",\n    "support": "support level (or \'N/A\')",\n    "resistance": "resistance level (or \'N/A\')",\n    "recommendations": ["recommendation 1 in English", "recommendation 2", "recommendation 3"],\n    "indicators": ["indicator 1 with explanation", "indicator 2 with explanation"]\n}\n\nCarefully analyze: the trend, support/resistance levels, candlestick formations, volume, and any technical indicators visible on the chart. Respond ONLY in JSON format.`;
+            const prompt = `You are a professional Forex market analyst with 20+ years of experience. Analyze this Forex chart and provide a detailed analysis.\n\nRESPOND IN THE FOLLOWING JSON FORMAT ONLY (only JSON, no other text):\n{\n    "signal": "BUY" or "SELL" or "HOLD",\n    "pair": "the currency pair you see (e.g. EUR/USD)",\n    "confidence": number from 1-100,\n    "risk": "Low" or "Medium" or "High",\n    "analysis": "Detailed technical analysis explanation in English (3-5 sentences)",\n    "entry": "entry price (or 'N/A')",\n    "stopLoss": "stop loss price (or 'N/A')",\n    "takeProfit": "take profit price (or 'N/A')",\n    "support": "support level (or 'N/A')",\n    "resistance": "resistance level (or 'N/A')",\n    "recommendations": ["recommendation 1 in English", "recommendation 2", "recommendation 3"],\n    "indicators": ["indicator 1 with explanation", "indicator 2 with explanation"]\n}\n\nCarefully analyze: the trend, support/resistance levels, candlestick formations, volume, and any technical indicators visible on the chart. THE USER HAS SELECTED THE FOLLOWING CURRENCY PAIR FOR THIS CHART: ${selectedPairText}. You must use this pair in your response! Respond ONLY in JSON format.`;
 
-            const response = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: mimeType, data: base64Data } }] }],
-                        generationConfig: { temperature: 0.3, maxOutputTokens: 2048 }
-                    })
-                }
-            );
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: 'gpt-4o',
+                    messages: [
+                        {
+                            role: 'user',
+                            content: [
+                                { type: 'text', text: prompt },
+                                { type: 'image_url', image_url: { url: currentImageBase64 } }
+                            ]
+                        }
+                    ],
+                    max_tokens: 1000,
+                    temperature: 0.3
+                })
+            });
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
                 throw new Error(errorData.error?.message || `API Error ${response.status}`);
             }
             const data = await response.json();
-            const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            const text = data.choices?.[0]?.message?.content;
             if (!text) throw new Error('No response');
             const jsonMatch = text.match(/\{[\s\S]*\}/);
             if (!jsonMatch) throw new Error('Bad format');
             result = JSON.parse(jsonMatch[0]);
         } catch (aiError) {
-            console.error("Gemini API Error: ", aiError);
+            console.error("OpenAI API Error: ", aiError);
             // Fallback to our generator if API fails
             await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 1500));
             const manualPairEl = document.getElementById('manualPair');
@@ -534,19 +544,7 @@ async function analyzeChart() {
 }
 
 function generateRealisticAnalysis(base64Str = '', selectedPair = null) {
-    // Generate a simple hash from the image string to use as a seed
-    let hash = 0;
-    for (let i = 0; i < base64Str.length; i++) {
-        hash = ((hash << 5) - hash) + base64Str.charCodeAt(i);
-        hash |= 0;
-    }
-
-    // Custom seeded random function
-    let seed = Math.abs(hash) || Date.now();
-    const random = () => {
-        const x = Math.sin(seed++) * 10000;
-        return x - Math.floor(x);
-    };
+    const random = Math.random;
 
     const pairs = ['EUR/USD', 'GBP/USD', 'USD/JPY', 'AUD/USD', 'USD/CHF', 'NZD/USD', 'EUR/GBP', 'USD/CAD', 'EUR/JPY', 'GBP/JPY'];
     const signals = ['BUY', 'SELL', 'HOLD'];
